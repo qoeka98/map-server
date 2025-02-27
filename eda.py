@@ -97,14 +97,18 @@ def run_eda():
     # 기본 좌표 (한국 중앙)
     lat, lon = 36.5, 127.8  
     prob = None  # 예측 결과 기본값
+    risk_level, advice = None, None  # 기본 위험 정보
 
     if address:
         lat, lon = get_lat_lon_from_address(address)
-        if lat and lon:
+
+        # ✅ 좌표가 정상적으로 반환되지 않으면 기본 좌표 사용
+        if lat is None or lon is None:
+            st.error("❌ 주소를 찾을 수 없습니다. 올바른 주소를 입력하세요.")
+            lat, lon = 36.5, 127.8  # 기본 좌표 유지 (에러 방지)
+        else:
             prob = predict_earthquake(lat, lon)  # 예측 실행
             risk_level, advice = get_risk_level(prob)
-        else:
-            st.write("❌ 주소를 찾을 수 없습니다. 올바른 주소를 입력하세요.")
 
     # ✅ 예측 결과 (실시간 위험도 위에 표시)
     st.write("### 📊 예측 결과")
@@ -117,18 +121,24 @@ def run_eda():
 
     # ✅ 6. 실시간 지진 위험 HeatMap (사용자 입력 위치 포함)
     st.write("### 🔥 실시간 지진 위험도")
-    real_time_map = folium.Map(location=[lat, lon], zoom_start=6, tiles="OpenStreetMap")
 
-    # ✅ HeatMap 추가 (과거 1년간 지진 데이터 활용)
-    if not df_earthquakes.empty:
-        heat_data = df_earthquakes[['lat', 'lon', 'magnitude']].values.tolist()
-        HeatMap(heat_data, radius=12, blur=6, min_opacity=0.4).add_to(real_time_map)
+    # ✅ 좌표가 유효할 때만 지도 생성
+    if lat is not None and lon is not None:
+        real_time_map = folium.Map(location=[lat, lon], zoom_start=6, tiles="OpenStreetMap")
 
-    # ✅ 사용자 위치 마커 추가
-    if address and lat and lon:
-        folium.Marker([lat, lon], popup=f"📍 {address}", icon=folium.Icon(color="red")).add_to(real_time_map)
+        # ✅ HeatMap 추가 (과거 1년간 지진 데이터 활용)
+        if not df_earthquakes.empty:
+            heat_data = df_earthquakes[['lat', 'lon', 'magnitude']].values.tolist()
+            HeatMap(heat_data, radius=12, blur=6, min_opacity=0.4).add_to(real_time_map)
 
-    st_folium(real_time_map, height=500, width=700)
+        # ✅ 사용자 위치 마커 추가
+        if address and lat is not None and lon is not None:
+            folium.Marker([lat, lon], popup=f"📍 {address}", icon=folium.Icon(color="red")).add_to(real_time_map)
+
+        st_folium(real_time_map, height=500, width=700)
+    else:
+        st.error("🚨 지도 생성을 위한 유효한 좌표가 없습니다. 올바른 주소를 입력하세요.")
 
     # ✅ 뉴스 출력 (하단)
     run_news()
+

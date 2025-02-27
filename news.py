@@ -1,14 +1,13 @@
 import streamlit as st
-import joblib
 import requests
 import re
+from datetime import datetime, timedelta, timezone
+from pytz import timezone
+from bs4 import BeautifulSoup
+import feedparser
 
-# ✅ 1. API 키 보호 (환경 변수 사용)
-CLIENT_ID = st.secrets["YOUR_CLIENT_ID"]
-CLIENT_SECRET = st.secrets["YOUR_CLIENT_SECRET"]
-
-# ✅ 2. 대표 지진 관련 키워드
-EARTHQUAKE_KEYWORDS = ["지진", "강진", "진도", "여진", "해일", "쓰나미", "earthquake", "seismic"]
+# ✅ 한국 시간대 설정 (UTC → KST 변환)
+KST = timezone('Asia/Seoul')
 
 def clean_html_tags(text):
     """HTML 태그 및 특수문자 제거"""
@@ -16,76 +15,74 @@ def clean_html_tags(text):
     text = text.replace("&quot;", '"').replace("&amp;", "&")  # 특수문자 처리
     return text.strip()
 
-def get_earthquake_news():
-    """네이버 뉴스 API에서 지진 관련 기사 가져오기"""
-    
-    # ✅ "지진" 키워드로 검색 (API가 OR 검색을 지원하지 않기 때문)
-    query = ["지진","여진","쓰나미","해일","강진"]
-    url = f"https://openapi.naver.com/v1/search/news.json?query={query}&display=10&sort=date"
-    
+def get_naver_earthquake_news():
+    """네이버 뉴스 검색 결과에서 최신 지진 관련 뉴스 크롤링"""
+    query = "지진 OR 강진 OR 여진 OR 쓰나미 OR 해일 OR 규모 OR 진앙 OR 피해"
+    url = f"https://search.naver.com/search.naver?where=news&query={query}&sort=1"
+
     headers = {
-        "X-Naver-Client-Id": CLIENT_ID,
-        "X-Naver-Client-Secret": CLIENT_SECRET
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36"
     }
 
-    try:
-        response = requests.get(url, headers=headers, timeout=5)
+    response = requests.get(url, headers=headers)
+    soup = BeautifulSoup(response.text, "html.parser")
+
+    news_list = []
+    news_items = soup.select("div.news_area")  # 네이버 뉴스 기사 영역
+
+    today = datetime.now(KST).strftime('%Y')  # ✅ 현재 연도 필터링
+
+    for item in news_items[:10]:  # ✅ 최신 뉴스 10개 가져오기
+        title = item.select_one("a.news_tit").text
+        link = item.select_one("a.news_tit")["href"]
+        source = item.select_one("a.info.press").text.strip()
+        pub_date = item.select_one("span.info").text.strip()
         
-        # ✅ API 응답 상태 확인 (디버깅용)
-        if response.status_code != 200:
-            st.write(f"❌ API 오류 (상태 코드: {response.status_code})")
-            return [{"title": "❌ 뉴스 데이터를 불러올 수 없습니다.",
-                     "description": f"API 오류 (상태 코드: {response.status_code})",
-                     "link": ""}]
+        # ✅ 연도 필터링: 2025년 기사만 포함
+        if today in pub_date and any(keyword in title for keyword in ["지진", "강진", "여진", "쓰나미", "해일", "규모", "진앙", "피해"]):
+            news_list.append({
+                "title": title,
+                "source": source,
+                "link": link,
+                "pub_date": pub_date
+            })
 
-        response.raise_for_status()
-        news_data = response.json()
-        
-       
+    return news_list
 
-        # ✅ 3. 지진 관련 뉴스 필터링 (제목 또는 본문에 반드시 키워드 포함)
-        filtered_news = []
-        for item in news_data.get("items", []):
-            title = clean_html_tags(item["title"])
-            description = clean_html_tags(item["description"])
-            link = item["originallink"]
+def get_google_earthquake_news():
+    """구글 뉴스 RSS에서 최신 지진 관련 뉴스 가져오기"""
+    rss_url = "https://news.google.com/rss/search?q=지진&hl=ko&gl=KR&ceid=KR:ko"
+    feed = feedparser.parse(rss_url)
 
-            # ✅ 필터링 기준 완화 (title 또는 description에 키워드가 하나라도 포함되면 허용)
-            if any(kw in title or kw in description for kw in EARTHQUAKE_KEYWORDS):
-                filtered_news.append({
-                    "title": title,
-                    "description": description,
-                    "link": link
-                })
-        
-        # ✅ 4. 관련 뉴스가 없을 경우 메시지 반환
-        if not filtered_news:
-            return [{"title": "❌ 관련 뉴스가 없습니다.", "description": "현재 지진 관련 뉴스가 없습니다.", "link": ""}]
+    news_list = []
+    for entry in feed.entries[:5]:  # ✅ 최신 뉴스 5개 가져오기
+        news_list.append({
+            "title": entry.title,
+            "link": entry.link,
+            "pub_date": entry.published
+        })
+    
+    return news_list
 
-        return filtered_news[:5]  # ✅ 최대 5개 뉴스만 반환
-
-    except requests.exceptions.RequestException as e:
-        return [{"title": "❌ 뉴스 데이터를 불러올 수 없습니다.",
-                 "description": f"네트워크 오류 또는 API 키 문제 ({str(e)})",
-                 "link": ""}]
-
-
-# ✅ 5. 저장된 모델 불러오기
-loaded_rf = joblib.load("earthquake_model.joblib")
-loaded_scaler = joblib.load("scaler.joblib")
-
-
-# ✅ 6. Streamlit UI 설정
+# ✅ 4. Streamlit UI 설정
 def run_news():
     st.title("🌍 실시간 지진 예측 시스템")
 
-    # ✅ 7. 실시간 지진 뉴스 표시
-    st.write("### 📰 최근 7일간 전 세계 지진 뉴스")
+    # ✅ 5. "새로고침" 버튼 추가
+    if st.button("🔄 최신 뉴스 불러오기"):
+        st.rerun()
 
-    news_articles = get_earthquake_news()
+    # ✅ 6. 최근 뉴스 표시
+    st.write(f"### 📰 2025년 최신 지진 뉴스 (네이버 & 구글)")
+
+    naver_news = get_naver_earthquake_news()
+    google_news = get_google_earthquake_news()
     
-    for news in news_articles:
-        with st.expander(f"📰 {news['title']}"):
-            st.write(f"📌 **기사 내용:**\n{news['description']}")
-            if news["link"]:
+    news_articles = naver_news + google_news
+    
+    if not news_articles:
+        st.write("❌ 관련 지진 뉴스가 없습니다. (최신 데이터를 다시 확인해 주세요.)")
+    else:
+        for news in news_articles:
+            with st.expander(f"📰 [{news.get('pub_date', '날짜 없음')}] {news['title']}"):
                 st.write(f"🔗 [원문 보기]({news['link']})")
