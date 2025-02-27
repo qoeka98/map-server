@@ -6,7 +6,8 @@ from new import run_new
 from snagdam import run_sangdam
 from deapi import run_deapi
 
-
+# ✅ `st.set_page_config()`를 가장 먼저 실행
+st.set_page_config(page_title="지진 예측 AI", layout="wide")
 
 def main():
     # ✅ Streamlit Option Menu 사용
