@@ -8,7 +8,7 @@ from new import run_new
 from snagdam import run_sangdam
 
 def main():
-    # ✅ Streamlit Option Menu 사용
+    # ✅ Streamlit Option Menu 사
     with st.sidebar:
         st.markdown("""
             <style>
