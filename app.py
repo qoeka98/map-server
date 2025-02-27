@@ -1,5 +1,7 @@
 import streamlit as st
 from streamlit_option_menu import option_menu
+
+from deapo import run_deapi
 from eda import run_eda
 from home import run_home
 from new import run_new
@@ -106,9 +108,8 @@ def main():
         st.markdown("</div>", unsafe_allow_html=True)
     
     elif menu == "대피소 위치":
-        st.title("🏠 대피소 위치 정보")
-        st.info("📍 가까운 대피소를 확인하고 미리 알아두세요.")
-        st.map()
+        run_deapi()
+      
 
 # ✅ 실행
 if __name__ == "__main__":
