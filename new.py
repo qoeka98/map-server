@@ -5,14 +5,19 @@ import joblib
 import pandas as pd
 import requests
 from folium.plugins import HeatMap
+from datetime import datetime, timedelta
 
 # ✅ 1. 저장된 모델 불러오기
 loaded_rf = joblib.load("earthquake_model.joblib")
 loaded_scaler = joblib.load("scaler.joblib")
 
-# ✅ 2. USGS API에서 지진 데이터 가져오기 (10분마다 업데이트)
-@st.cache_data(ttl=600)
-def get_past_earthquakes(min_magnitude=5.0, start_date="2023-01-01", end_date="2024-01-01", limit=5000):
+
+
+# ✅ 현재 날짜를 기반으로 실시간 데이터 요청
+def get_past_earthquakes(min_magnitude=5.0, days=30, limit=5000):
+    end_date = datetime.today().strftime("%Y-%m-%d")
+    start_date = (datetime.today() - timedelta(days=days)).strftime("%Y-%m-%d")
+
     url = "https://earthquake.usgs.gov/fdsnws/event/1/query"
     params = {
         "format": "geojson",
