@@ -7,3 +7,6 @@ pandas
 requests
 huggingface_hub
 scikit-learn
+numpy
+transformers  # (Hugging Face 모델을 사용하는 경우)
+beautifulsoup4  # (웹 크롤링을 한다면 추가)
