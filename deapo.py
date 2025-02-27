@@ -2,13 +2,12 @@ import streamlit as st
 import requests
 import pandas as pd
 import folium
-from streamlit_folium import folium_static
+from streamlit_folium import st_folium
 import urllib.parse
 
-# ✅ 공공데이터포털에서 올바른 API 기본 도메인 확인 후 변경 필요
+# ✅ 공공데이터포털에서 정확한 API 기본 도메인을 확인해야 함!
 BASE_URL = "https://apis.data.go.kr/V2/api/DSSP-IF-10941"
 API_KEY = "L6GN1MCZW142W4GF"  # 실제 API 키 사용
-
 
 # API 호출 함수
 def get_shelters(region):
@@ -19,13 +18,15 @@ def get_shelters(region):
     url = f"{BASE_URL}?serviceKey={API_KEY}&region={region_encoded}&type=json"
 
     try:
-        response = requests.get(url, timeout=5)
+        response = requests.get(url, timeout=5, verify=True)  # SSL 인증 유지
         response.raise_for_status()  # HTTP 오류 발생 시 예외 발생
 
         data = response.json()
         if "shelters" in data:
             return data["shelters"]
 
+    except requests.exceptions.SSLError:
+        st.error("⚠️ SSL 인증서 문제 발생: Python의 OpenSSL 버전을 업데이트하세요.")
     except requests.exceptions.RequestException as e:
         st.error(f"⚠️ API 요청 중 오류 발생: {e}")
 
@@ -36,9 +37,9 @@ def run_deapi():
     st.title("🏠 지역별 대피소 검색")
     st.info("📍 원하는 지역을 입력하면 해당 지역의 대피소 위치를 확인할 수 있습니다.")
 
-    # 기본 지도 표시 (대한민국 중심)
+    # ✅ 기본 지도 표시 (대한민국 중심) - folium_static 대신 st_folium 사용
     m = folium.Map(location=[36.5, 127.5], zoom_start=7)
-    folium_static(m)
+    st_folium(m, width=700, height=500)
 
     # 사용자 입력
     region = st.text_input("🔍 검색할 지역명을 입력하세요 (예: 서울, 부산 등):")
@@ -62,8 +63,8 @@ def run_deapi():
                         tooltip=row["shelterName"]
                     ).add_to(shelter_map)
 
-                # 지도 출력
-                folium_static(shelter_map)
+                # ✅ folium_static 대신 st_folium 사용
+                st_folium(shelter_map, width=700, height=500)
 
                 # 대피소 목록 출력
                 st.subheader("📋 대피소 목록")
