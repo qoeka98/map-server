@@ -1,0 +1,9 @@
+streamlit
+streamlit_option_menu
+streamlit_folium
+folium
+joblib
+pandas
+requests
+huggingface_hub
+scikit-learn
