@@ -6,6 +6,7 @@ from deapo import run_deapi
 from eda import run_eda
 from home import run_home
 from jijin import run_jijin
+from map import run_map
 from new import run_new
 from snagdam import run_sangdam
 
@@ -34,7 +35,7 @@ def main():
         
         menu = option_menu(
             menu_title="메뉴 선택",
-            options=["🏠 홈", "🔍 지진 예측", "대비 방법 및 상담"],
+            options=["🏠 홈", "🔍 지진 예측", "대비 방법 및 상담","앱개발과정"],
             icons=["house", "stethoscope", "bar-chart-line", "chat-text", "shield", "phone"],
             menu_icon="cast",
             default_index=0,
@@ -66,6 +67,9 @@ def main():
    
     elif menu == "대비 방법 및 상담":
         run_deabi()
+
+    elif menu == "앱개발과정":
+        run_map()
   
       
 
