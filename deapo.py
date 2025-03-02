@@ -75,10 +75,6 @@ def run_deapi():
 
    
 
-    # 외부에서 보는 내 IP 주소 확인
-    response = requests.get("https://api.ipify.org?format=json")
-    st.write("Streamlit 앱의 외부 IP 주소:", response.json().get("ip"))
-
     
     
 
