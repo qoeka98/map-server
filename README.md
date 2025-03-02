@@ -153,6 +153,7 @@ http://localhost:8501
 └─ earthquake_model.joblib   # 학습된 머신러닝 모델 파일
 
 
+
 🔒 보안 및 최적화
 
 API 키 관리: API 키와 토큰은 secrets.toml 파일에 저장하고, st.secrets.get() 메서드를 사용하여 안전하게 불러옴.
