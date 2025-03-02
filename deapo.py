@@ -8,15 +8,14 @@ from geopy.distance import geodesic
 
 # ✅ 기존 대피소 API
 BASE_URL_1 = "https://www.safetydata.go.kr/V2/api/DSSP-IF-00706"
-API_KEY_1 = st.secrets.get("API_KEY_1","")
+API_KEY_1 = st.secrets.get("API_KEY_1", "")
+encoded_key_1 = urllib.parse.quote(API_KEY_1)  # API Key 인코딩
 
-encoded_key = urllib.parse.quote(API_KEY_1)  # 올바르게 URL 인코딩
-
-
-#  신규 통합대피소 API
+# ✅ 신규 통합대피소 API
 BASE_URL_2 = "https://www.safetydata.go.kr/V2/api/DSSP-IF-10941"
-API_KEY_2 = st.secrets.get("API_KEY_2","")
-encoded_key = urllib.parse.quote(API_KEY_2)
+API_KEY_2 = st.secrets.get("API_KEY_2", "")
+encoded_key_2 = urllib.parse.quote(API_KEY_2)  # API Key 인코딩
+
 
 # ✅ 주요 도시 좌표 (시 단위 검색)
 CITY_COORDINATES = {
