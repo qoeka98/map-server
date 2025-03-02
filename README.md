@@ -138,7 +138,7 @@ streamlit run app.py
 http://localhost:8501
 
 📂 파일 및 디렉터리 구조
-
+```bash
 📦 map-server
 ├─ .streamlit/
 │   └─ secrets.toml          # API 키 및 보안 설정 관리
@@ -151,6 +151,7 @@ http://localhost:8501
 ├─ news.py                   # 실시간 지진 뉴스 크롤링
 ├─ requirements.txt          # 필요한 Python 라이브러리 목록
 └─ earthquake_model.joblib   # 학습된 머신러닝 모델 파일
+
 
 
 
