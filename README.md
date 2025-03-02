@@ -139,17 +139,19 @@ http://localhost:8501
 
 📂 파일 및 디렉터리 구조
 
-📦 프로젝트 루트
-├─ app.py                # 메인 앱 실행 및 메뉴 구성
-├─ eda.py                # 지진 예측 및 위험 지역 분석
-├─ new.py                # 실시간 데이터 활용 예측 기능
-├─ deapo.py              # 대피소 정보 수집 및 지도 표시
-├─ deabi.py              # 지진 대비 시스템 기능
-├─ snagdam.py            # AI 챗봇 기능 구현
-├─ news.py               # 실시간 지진 뉴스 크롤링
-├─ secrets.toml          # API 키 및 보안 설정 관리
-├─ requirements.txt      # 필요한 Python 라이브러리 목록
-└─ earthquake_model.joblib # 학습된 머신러닝 모델 파일
+📦 map-server
+├─ .streamlit/
+│   └─ secrets.toml          # API 키 및 보안 설정 관리
+├─ app.py                    # 메인 앱 실행 및 메뉴 구성
+├─ eda.py                    # 지진 예측 및 위험 지역 분석
+├─ new.py                    # 실시간 데이터 활용 예측 기능
+├─ deapo.py                  # 대피소 정보 수집 및 지도 표시
+├─ deabi.py                  # 지진 대비 시스템 기능
+├─ snagdam.py                # AI 챗봇 기능 구현
+├─ news.py                   # 실시간 지진 뉴스 크롤링
+├─ requirements.txt          # 필요한 Python 라이브러리 목록
+└─ earthquake_model.joblib   # 학습된 머신러닝 모델 파일
+
 
 🔒 보안 및 최적화
 
