@@ -79,6 +79,10 @@ def run_home():
         unsafe_allow_html=True
     )
     
+
+    st.write("API_KEY_1:", st.secrets.get("API_KEY_1"))
+    st.write("API_KEY_2:", st.secrets.get("API_KEY_2"))
+
     st.markdown(
         """
         <div class='title-container'>
