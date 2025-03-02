@@ -14,16 +14,7 @@ import streamlit as st
 model_path = "earthquake_model.joblib"
 scaler_path = "scaler.joblib"
 
-# 파일 존재 확인
-if not os.path.exists(model_path):
-    st.error(f"모델 파일을 찾을 수 없습니다: {model_path}")
-else:
-    st.success(f"모델 파일이 존재합니다: {model_path}")
 
-if not os.path.exists(scaler_path):
-    st.error(f"스케일러 파일을 찾을 수 없습니다: {scaler_path}")
-else:
-    st.success(f"스케일러 파일이 존재합니다: {scaler_path}")
 
 
 # ✅ 1. 과거 지진 데이터를 USGS API에서 가져오기
