@@ -14,7 +14,7 @@ loaded_scaler = joblib.load("scaler.joblib")
 
 
 # ✅ 현재 날짜를 기반으로 실시간 데이터 요청
-def get_past_earthquakes(min_magnitude=5.0, days=30, limit=5000):
+def get_past_earthquakes(min_magnitude=4.5, days=30, limit=5000):
     end_date = datetime.today().strftime("%Y-%m-%d")
     start_date = (datetime.today() - timedelta(days=days)).strftime("%Y-%m-%d")
 
@@ -116,52 +116,59 @@ def get_major_countries_risk():
 # ✅ 7. Streamlit UI 실행
 def run_new():
     st.title("🌍 실시간 지진 예측 시스템")
+    st.info('''🌍 **지구별 지진 위험도 미리 파악하세요!**  
+
+✅ 최근 **30일간 규모 4.5 이상**의 지진 데이터를 수집 및 분석하여,  
+   사용자가 **지진 발생 경향과 위험 지역을 실시간으로 확인**할 수 있습니다.  
+
+📊 **지진 데이터 분석을 통해 대비책을 마련하세요!** ,  
+   **지진 발생 가능성이 높은 지역을 사전에 인지**할 수 있습니다.''')
+
 
     # ✅ 8. 실시간 지진 데이터 로드
     with st.spinner("지진 데이터를 불러오는 중..."):
         df_earthquakes = get_past_earthquakes()
 
-    # ✅ 9. 실시간 예측 위험 지역 정리
-    df_top_magnitude = df_earthquakes.sort_values(by="magnitude", ascending=False).head(5)
-    st.write("### 🔥 실시간 지진 예측 정보 🔥")
-    st.info("실시간으로 정보를 확인하는 중이라 잠시 기다려주세요. ")
-    for _, row in df_top_magnitude.iterrows():
-        location_name = get_location_name(row["lat"], row["lon"])
-        risk = predict_earthquake(row["lat"], row["lon"])
-        st.write(f"📍 **{location_name} → 예상 지진 확률: {risk}%**")
-
-    
-
-    
+    # ✅ 9. 실시간 예측 지도
     st.write("### 🔍 실시간 지진 예측 지도")
     m1 = folium.Map(location=[20, 0], zoom_start=2, tiles="OpenStreetMap")
-    for _, row in df_top_magnitude.iterrows():
-         folium.Marker(
+    for _, row in df_earthquakes.sort_values(by="magnitude", ascending=False).head(5).iterrows():
+        folium.Marker(
             location=[row["lat"], row["lon"]],
-             popup=f"📍 {get_location_name(row['lat'], row['lon'])}<br>예상 지진 확률: {predict_earthquake(row['lat'], row['lon'])}%",
+            popup=f"📍 {get_location_name(row['lat'], row['lon'])}<br>예상 지진 확률: {predict_earthquake(row['lat'], row['lon'])}%",
             icon=folium.Icon(color="red")
         ).add_to(m1)
     st_folium(m1, height=500, width=600)
 
-    
-    # ✅ 10. 주요 국가 위험도 정보 표시
-    st.write("### 🏛 주요 국가 지진 위험도")
-    major_risk_df = get_major_countries_risk()
-    for _, row in major_risk_df.iterrows():
-        st.write(f"🌏 **{row['country']} ({row['location']}) → 예상 지진 확률: {row['risk']}%**")
+    # ✅ 10. 실시간 예측 위험 지역 정리
+    st.write("### 🔥 실시간 지진 예측 정보 🔥")
+ 
+    for _, row in df_earthquakes.sort_values(by="magnitude", ascending=False).head(5).iterrows():
+        location_name = get_location_name(row["lat"], row["lon"])
+        risk = predict_earthquake(row["lat"], row["lon"])
+        st.write(f"📍 **{location_name} → 예상 지진 확률: {risk}%**")
 
-    # ✅ 11. 실시간 예측 지도 & 주요 국가 위험도 히트맵 배치
-
-
+    # ✅ 11. 주요 국가 위험도 정보 표시
     st.write("### 🌍 주요 국가 지진 위험도 히트맵")
+    major_risk_df = get_major_countries_risk()
     m2 = folium.Map(location=[20, 0], zoom_start=2, tiles="CartoDB Positron")
     heat_data = major_risk_df[['lat', 'lon', 'risk']].values.tolist()
     HeatMap(heat_data, radius=30, blur=10, min_opacity=0.5).add_to(m2)
-    st_folium(m2, height=500, width=600)
 
-    # ✅ 12. 과거 1년 지진 히트맵 (다시 추가!)
-    st.write("### 📊 과거 1년간 전 세계 지진 히트맵")
-    m3 = folium.Map(location=[20, 0], zoom_start=2, tiles="CartoDB DarkMatter")
-    heat_data = df_earthquakes[['lat', 'lon', 'magnitude']].values.tolist()
-    HeatMap(heat_data, radius=10, blur=5, min_opacity=0.3).add_to(m3)
-    st_folium(m3, height=500, width=900)
+    for _, row in major_risk_df.iterrows():
+        folium.Marker(
+            location=[row["lat"], row["lon"]],
+            popup=f"📍 {row['country']} ({row['location']})<br>예상 지진 확률: {row['risk']}%",
+            icon=folium.Icon(color="blue", icon="info-sign")
+        ).add_to(m2)
+    
+    st_folium(m2, height=500, width=600)
+    
+    st.write("### 🏛 주요 국가 지진 위험도")
+    for _, row in major_risk_df.iterrows():
+        st.write(f"🌏 **{row['country']}  → 예상 지진 확률: {row['risk']}%**")
+
+    st.write("")
+    st.write("")
+
+    st.info("원하는 지역을 검색하여 예측 정보를 알고 싶다면 상단에 지진 예측을 통해 검색해보세요!")
