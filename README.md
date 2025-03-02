@@ -168,6 +168,6 @@ API 키 관리: API 키와 토큰은 secrets.toml 파일에 저장하고, st.sec
 
 ---
 
-## 📧 vhzkflfltm6@gmail.com
+## 개발자 이메일📧 :  vhzkflfltm6@gmail.com
 
 
