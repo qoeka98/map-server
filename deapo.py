@@ -4,15 +4,15 @@ import pandas as pd
 import folium
 from streamlit_folium import st_folium, folium_static
 import urllib.parse
-from geopy.distance import geodesic
+from geopy.distance import geodesic  # 거리 계산용
 
 # ✅ 기존 대피소 API
 BASE_URL_1 = "https://www.safetydata.go.kr/V2/api/DSSP-IF-00706"
-API_KEY_1 = st.secrets.get("API_KEY_1","")
+API_KEY_1 = "3Q6Y6IGS6R283PO5"
 
 # ✅ 신규 통합대피소 API
 BASE_URL_2 = "https://www.safetydata.go.kr/V2/api/DSSP-IF-10941"
-API_KEY_2 = st.secrets.get("API_KEY_2","")
+API_KEY_2 = "L6GN1MCZW142W4GF"
 
 # ✅ 주요 도시 좌표 (시 단위 검색)
 CITY_COORDINATES = {
