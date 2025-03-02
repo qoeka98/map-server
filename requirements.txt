@@ -11,3 +11,4 @@ numpy
 transformers  
 beautifulsoup4  
 feedparser
+geopy
