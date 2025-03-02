@@ -71,8 +71,7 @@ def get_shelters(api_url, api_key):
 
 def run_deapi():
     st.title("🏠 전국 대피소 검색")
-    public_ip = requests.get('https://api.ipify.org').text
-    st.write("배포 환경의 퍼블릭 IP:", public_ip)
+    
     
 
     # ✅ 두 개의 API에서 데이터 가져오기
