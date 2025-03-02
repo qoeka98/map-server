@@ -13,7 +13,7 @@ API_KEY_1 = st.secrets.get("API_KEY_1","")
 encoded_key = urllib.parse.quote(API_KEY_1)  # 올바르게 URL 인코딩
 
 
-# ✅ 신규 통합대피소 API
+#  신규 통합대피소 API
 BASE_URL_2 = "https://www.safetydata.go.kr/V2/api/DSSP-IF-10941"
 API_KEY_2 = st.secrets.get("API_KEY_2","")
 encoded_key = urllib.parse.quote(API_KEY_2)
