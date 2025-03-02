@@ -100,8 +100,7 @@ def run_deapi():
     # ✅ 기본 전국 대피소 지도 표시
     st.subheader("🗺️ 전국 대피소 지도")
     
-    st.write("API_KEY_1:", st.secrets.get("API_KEY_1"))
-    st.write("API_KEY_2:", st.secrets.get("API_KEY_2"))
+    
 
     
 
