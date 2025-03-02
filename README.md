@@ -164,6 +164,8 @@ API 키 관리: API 키와 토큰은 secrets.toml 파일에 저장하고, st.sec
 오류 처리: 모든 API 호출과 데이터 처리 시 예외 처리를 통해 안정성을 높였습니다.
 
 데이터 캐싱: Streamlit의 @st.cache_data를 사용하여 데이터 로딩 속도를 개선하고 API 사용량을 줄였습니다.
+
+
 ---
 
 ## 📧 vhzkflfltm6@gmail.com
