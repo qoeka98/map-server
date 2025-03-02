@@ -73,7 +73,7 @@ def run_deapi():
     st.title("🏠 전국 대피소 검색")
 
 
-    st.title("Streamlit 서버 IP 확인")
+   
 
     # 외부에서 보는 내 IP 주소 확인
     response = requests.get("https://api.ipify.org?format=json")
