@@ -9,7 +9,6 @@ from folium.plugins import HeatMap
 model_path = "earthquake_model.joblib"
 scaler_path = "scaler.joblib"
 
-# Load the scaler and model
 loaded_scaler = joblib.load(scaler_path)
 loaded_rf = joblib.load(model_path)
 
