@@ -128,6 +128,13 @@ def run_sangdam():
         st.session_state.messages.append({"role": "user", "content": clean_chat})
         st.session_state.messages.append({"role": "assistant", "content": response})
 
+        st.markdown(f"### 📂 저장된 대화 기록")
+        for i, msg in enumerate(st.session_state.messages[-2:], start=1):
+            if msg["role"] == "user":
+                st.markdown(f"**질문 {i}:** {msg['content']}")
+            else:
+                st.markdown(f"**답변 {i}:** {msg['content']}")
+
         st.markdown(
             f"""
             <div class="chat-container">
