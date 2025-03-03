@@ -174,8 +174,7 @@ def run_sangdam():
 8. "지진 발생 후 심리적 충격을 어떻게 극복할 수 있나요?"  
    → 지진 후 심리적 충격을 극복하려면, **심리적 지원**을 받는 것이 중요하며, **스트레스 관리**를 위한 **휴식과 대화**가 필요합니다.
 
-**기타**:
-   - 네, 이와 같은 정보들은 **지진 대비**와 관련된 상담에 적합합니다.'''
+520자 이내에 대답해야.'''
 
 )
 
@@ -185,7 +184,7 @@ def run_sangdam():
 
             # ✅ 스피너로 AI 응답 기다리기
             with st.spinner("AI가 응답 중입니다..."):
-                response = client.text_generation(prompt=full_prompt, max_new_tokens=520, temperature=0.18,   # 조금 더 창의적이고 구체적인 답변을 유도
+                response = client.text_generation(prompt=full_prompt, max_new_tokens=520, temperature=0.13,  
     top_p=0.9,        
     top_k=50)
                 time.sleep(2)  # 응답을 기다리는 동안 잠시 지연을 추가할 수 있습니다.
