@@ -15,7 +15,10 @@ def is_earthquake_related(text):
 
 # ✅ Hugging Face API 토큰 가져오기
 def get_huggingface_token():
-    return st.secrets.get("HUGGINGFACE_API_TOKEN")
+    token = st.secrets.get("HUGGINGFACE_API_TOKEN")
+    if not token:
+        st.error("❌ Hugging Face API 토큰이 설정되지 않았습니다. Streamlit Secrets에 'HUGGINGFACE_API_TOKEN'을 추가해 주세요.")
+    return token
 
 # ✅ AI 챗봇 실행 함수
 def run_sangdam():
@@ -77,13 +80,21 @@ def run_sangdam():
         """
     )
 
-    # ✅ 기존 채팅 기록 유지
+    token = get_huggingface_token()
+    if not token:
+        return
+
+    try:
+        client = InferenceClient(model="google/gemma-2-9b-it", api_key=token)
+    except Exception as e:
+        st.error(f"❌ AI 모델 초기화에 실패했습니다: {e}")
+        return
+
     if "messages" not in st.session_state:
         st.session_state.messages = [
             {"role": "assistant", "content": "안녕하세요! 지진 대비 챗봇입니다. 궁금한 점을 물어보세요!"}
         ]
 
-    # ✅ 기존 채팅 기록을 화면 하단에 표시
     st.markdown("<div class='chat-wrapper'>", unsafe_allow_html=True)
     for message in st.session_state.messages:
         role = message["role"]
@@ -118,13 +129,14 @@ def run_sangdam():
 
             full_prompt = system_prompt + "\n\n" + clean_chat
 
-            # ✅ 사용자 입력 및 로딩 스피너 표시
             st.session_state.messages.append({"role": "user", "content": clean_chat})
             with st.spinner("AI가 응답을 생성 중입니다. 잠시만 기다려 주세요..."):
-                time.sleep(1)  # 스피너 표시를 위한 딜레이
-                response = client.text_generation(prompt=full_prompt, max_new_tokens=520)
+                try:
+                    response = client.text_generation(prompt=full_prompt, max_new_tokens=520)
+                except Exception as e:
+                    st.error(f"❌ AI 응답 생성에 실패했습니다: {e}")
+                    return
 
             st.session_state.messages.append({"role": "assistant", "content": response})
 
-        # ✅ 화면 자동 스크롤을 위해 빈 요소 추가
         st.markdown("<div style='height: 50px;'></div>", unsafe_allow_html=True)
