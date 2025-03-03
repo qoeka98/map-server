@@ -90,6 +90,7 @@ def run_sangdam():
             {"role": "assistant", "content": "안녕하세요! 지진 대비 챗봇입니다. 궁금한 점을 물어보세요!"}
         ]
 
+    # ✅ 기존 채팅 기록 표시
     for message in st.session_state.messages:
         role = message["role"]
         message_content = message["content"]
@@ -115,7 +116,6 @@ def run_sangdam():
         if not is_earthquake_related(clean_chat):
             response = "❌ 죄송합니다. 지진 관련 상담만 가능합니다."
         else:
-            # ✅ AI 응답 요청 (Gemma 모델 사용)
             system_prompt = '''
             너는 지진 대비 및 자연재해 전문가 AI야.  
             사용자에게 지진 대비, 대피 요령, 긴급 상황 행동 지침, 내진 설계, 지진 예측 기술, 심리적 대처 방법에 대한 정보를 제공해.
@@ -123,9 +123,31 @@ def run_sangdam():
 
             full_prompt = system_prompt + "\n\n" + clean_chat
 
+            # ✅ 사용자 입력 및 로딩 스피너 표시
+            st.session_state.messages.append({"role": "user", "content": clean_chat})
             with st.spinner("AI가 응답을 생성 중입니다. 잠시만 기다려 주세요..."):
-                time.sleep(1)  # 스핀너가 표시되도록 잠시 대기
+                time.sleep(1)  # 스피너 표시를 위한 딜레이
                 response = client.text_generation(prompt=full_prompt, max_new_tokens=520)
 
-        st.session_state.messages.append({"role": "user", "content": clean_chat})
-        st.session_state.messages.append({"role": "assistant", "content": response})
+            st.session_state.messages.append({"role": "assistant", "content": response})
+
+        # ✅ 최신 메시지를 화면에 즉시 표시
+        role = "user"
+        st.markdown(
+            f"""
+            <div class="chat-container">
+                <img src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png" class="chat-icon">
+                <div class="user-message">{clean_chat}</div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+        st.markdown(
+            f"""
+            <div class="chat-container">
+                <img src="https://cdn-icons-png.flaticon.com/512/4712/4712034.png" class="chat-icon">
+                <div class="ai-message">{response}</div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
