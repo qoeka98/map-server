@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 import re
 from datetime import datetime
-import pytz  # ✅ 올바른 timezone 사용
+import pytz  
 from bs4 import BeautifulSoup
 import feedparser
 

@@ -185,7 +185,7 @@ def run_sangdam():
 
             # ✅ 스피너로 AI 응답 기다리기
             with st.spinner("AI가 응답 중입니다..."):
-                response = client.text_generation(prompt=full_prompt, max_new_tokens=520, temperature=0.15,   # 조금 더 창의적이고 구체적인 답변을 유도
+                response = client.text_generation(prompt=full_prompt, max_new_tokens=520, temperature=0.18,   # 조금 더 창의적이고 구체적인 답변을 유도
     top_p=0.9,         # 더 적합한 답변을 만들도록 설정
     top_k=50)
                 time.sleep(2)  # 응답을 기다리는 동안 잠시 지연을 추가할 수 있습니다.
