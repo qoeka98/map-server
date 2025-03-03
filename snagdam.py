@@ -116,7 +116,7 @@ def run_sangdam():
 
     # ✅ 사용자 입력 받기
     placeholder_text = st.session_state.get('selected_question', "") or "지진 관련 질문을 입력하세요!"
-    chat = st.chat_input("지진 관련 질문을 입력하세요!", key="chat_input", placeholder=placeholder_text)
+    chat = st.text_input("지진 관련 질문을 입력하세요!", placeholder=placeholder_text, key="chat_input")
 
     if chat:
         clean_chat = clean_input(chat)
