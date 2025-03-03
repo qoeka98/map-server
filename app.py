@@ -62,7 +62,7 @@ def main():
     if menu == "🏠 홈":
         run_home()
     elif menu == "🔍 지진 예측":
-        run_jijin()
+       
     
    
     elif menu == "대비 방법 및 상담":
