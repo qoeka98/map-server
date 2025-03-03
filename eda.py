@@ -67,14 +67,14 @@ def get_lat_lon_from_address(address, retries=3):
             return None, None
     return None, None
 
-# ✅ 3. 지진 발생 확률 예측 함수
+#  3. 지진 발생 확률 예측 함수
 def predict_earthquake(lat, lon, depth=10.0):
     input_df = pd.DataFrame([[lat, lon, depth]], columns=['lat', 'lon', 'depth'])
     input_scaled = loaded_scaler.transform(input_df)  # Scale the input data using the loaded scaler
     prob = loaded_rf.predict_proba(input_scaled)[0][1]  # Get the probability for class 1 (earthquake)
     return round(prob * 100, 2)
 
-# ✅ 4. 위험 등급 판별 함수
+
 def get_risk_level(prob):
     if prob < 10:
         return "🟢 낮음 (Low Risk)", "일반적인 생활을 유지하세요."
