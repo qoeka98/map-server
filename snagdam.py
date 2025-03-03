@@ -10,6 +10,9 @@ def clean_input(text):
 
 # ✅ 지진 관련 질문 필터링 함수
 def is_earthquake_related(text):
+    # '지진' 단어만 포함한 경우를 필터링
+    if text.strip() == "지진":
+        return False
     earthquake_keywords = ["지진", "진도", "진앙", "지진 대비", "쓰나미", "대피소"]
     return any(keyword in text for keyword in earthquake_keywords)
 
@@ -134,8 +137,7 @@ def run_sangdam():
                 try:
                     response = client.text_generation(prompt=full_prompt, max_new_tokens=520)
                 except Exception as e:
-                    st.error(f"❌ AI 응답 생성에 실패했습니다: {e}")
-                    return
+                    response = f"❌ AI 응답 생성에 실패했습니다: {e}"
 
             st.session_state.messages.append({"role": "assistant", "content": response})
 
