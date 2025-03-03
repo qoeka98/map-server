@@ -68,6 +68,9 @@ def run_sangdam():
         """
     )
 
+    # ✅ 사용자 입력 부분 위에 추가 안내 표시
+    st.markdown("### 📢 무엇이든 물어보세요! (지진 관련 질문만 가능합니다)")
+
     # ✅ 예시 질문 표시
     with st.expander("💡 예시 질문 보기"):
         st.markdown(
