@@ -97,30 +97,14 @@ def run_eda():
     address = st.text_input("📍 주소를 입력하세요 (예: 서울특별시 강남구)")
 
     # 기본 좌표 (한국 중앙)
-    if 'lat' not in st.session_state or 'lon' not in st.session_state:
-        st.session_state.lat, st.session_state.lon = 36.5, 127.8  # 한국의 중앙 위치
-
-    lat, lon = st.session_state.lat, st.session_state.lon  # 기본 좌표
-
+    lat, lon = 36.5, 127.8  # 한국의 중앙 위치
     prob = None  # 예측 결과 기본값
     risk_level, advice = None, None  # 기본 위험 정보
-
-    # 기본 지도 표시
-    real_time_map = folium.Map(location=[lat, lon], zoom_start=6, tiles="OpenStreetMap")
-
-    # ✅ 지진 데이터를 지도에 HeatMap으로 추가
-    if not df_earthquakes.empty:
-        heat_data = df_earthquakes[['lat', 'lon', 'magnitude']].values.tolist()  # [위도, 경도, 규모]
-        if heat_data:  # 데이터가 비어있지 않은지 확인
-            HeatMap(heat_data, radius=12, blur=6, min_opacity=0.4).add_to(real_time_map)
-
-    # 지도 표시
-    st_folium(real_time_map, height=500, width=700)
 
     if address:
         lat, lon = get_lat_lon_from_address(address)
 
-        # 좌표가 정상적으로 반환되지 않으면 기본 좌표 사용
+        # ✅ 좌표가 정상적으로 반환되지 않으면 기본 좌표 사용
         if lat is None or lon is None:
             st.error("❌ 주소를 찾을 수 없습니다. 올바른 주소를 입력하세요.")
             lat, lon = 36.5, 127.8  # 기본 좌표 유지 (에러 방지)
@@ -128,27 +112,28 @@ def run_eda():
             prob = predict_earthquake(lat, lon)  # 예측 실행
             risk_level, advice = get_risk_level(prob)
 
-            # 사용자 위치 마커 추가
-            folium.Marker([lat, lon], popup=f"📍 {address}", icon=folium.Icon(color="red")).add_to(real_time_map)
-
-            # 지도 위치 변경
-            real_time_map.location = [lat, lon]  # 입력한 주소로 지도의 위치를 변경
-            real_time_map.zoom_start = 10  # 지도 확대
-
-            # 세션 상태에 저장
-            st.session_state.lat = lat
-            st.session_state.lon = lon
-
-        # 예측 결과
-        st.write("### 📊 예측 결과")
-        if prob is not None:
-            st.write(f"### 🔥 예상 지진 발생 확률: `{prob}%`")
-            st.write(f"### ⚡ 위험 등급: `{risk_level}`")
-            st.write(f"### 📢 유의사항: {advice}")
-        else:
-            st.write("🔍 위치를 입력하면 자동으로 예측이 실행됩니다.")
-
-        # 최종 업데이트된 지도 표시
-        st_folium(real_time_map, height=500, width=700)
+    # ✅ 예측 결과 (실시간 위험도 위에 표시)
+    st.write("### 📊 예측 결과")
+    if prob is not None:
+        st.write(f"### 🔥 예상 지진 발생 확률: `{prob}%`")
+        st.write(f"### ⚡ 위험 등급: `{risk_level}`")
+        st.write(f"### 📢 유의사항: {advice}")
     else:
         st.write("🔍 위치를 입력하면 자동으로 예측이 실행됩니다.")
+
+    # ✅ 좌표가 유효할 때만 지도 생성
+    if lat is not None and lon is not None:
+        real_time_map = folium.Map(location=[lat, lon], zoom_start=6, tiles="OpenStreetMap")
+
+        # ✅ HeatMap 추가 (과거 1년간 지진 데이터 활용)
+        if not df_earthquakes.empty:
+            heat_data = df_earthquakes[['lat', 'lon', 'magnitude']].values.tolist()
+            HeatMap(heat_data, radius=12, blur=6, min_opacity=0.4).add_to(real_time_map)
+
+        # ✅ 사용자 위치 마커 추가
+        if address and lat is not None and lon is not None:
+            folium.Marker([lat, lon], popup=f"📍 {address}", icon=folium.Icon(color="red")).add_to(real_time_map)
+
+        st_folium(real_time_map, height=500, width=700)
+    else:
+        st.error("🚨 지도 생성을 위한 유효한 좌표가 없습니다. 올바른 주소를 입력하세요.")
