@@ -69,8 +69,8 @@ def get_lat_lon_from_address(address, retries=3):
 #  3. 지진 발생 확률 예측 함수
 def predict_earthquake(lat, lon, depth=10.0):
     input_df = pd.DataFrame([[lat, lon, depth]], columns=['lat', 'lon', 'depth'])
-    input_scaled = loaded_scaler.transform(input_df)  # Scale the input data using the loaded scaler
-    prob = loaded_rf.predict_proba(input_scaled)[0][1]  # Get the probability for class 1 (earthquake)
+    input_scaled = loaded_scaler.transform(input_df)  
+    prob = loaded_rf.predict_proba(input_scaled)[0][1]  
     return round(prob * 100, 2)
 
 
