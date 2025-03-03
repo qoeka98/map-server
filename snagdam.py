@@ -1,6 +1,7 @@
 import streamlit as st
 from huggingface_hub import InferenceClient
 import re
+import time
 
 # ✅ 사용자 입력 필터링 함수
 def clean_input(text):
@@ -9,7 +10,7 @@ def clean_input(text):
 
 # ✅ 지진 관련 질문 필터링 함수
 def is_earthquake_related(text):
-    earthquake_keywords = ["지진", "진도", "진앙", "지진 대비", "쓰나미", "대피소"]
+    earthquake_keywords = ["지진", "진도", "진앙", "지진 대비", "쓰나미", "대처방법","안전","대피소","내진설계","구조 활동","안전수칙","내진 설계","지진예측","지진 대책","지진 안정","지진 대응","키트","응급처치","대피","대피 장소","지진 대처","대비 물품","지진 행동 요령","지진 발생 후","심리적","충격","2차피해"]   
     return any(keyword in text for keyword in earthquake_keywords)
 
 # ✅ Hugging Face API 토큰 가져오기
@@ -21,7 +22,7 @@ def run_sangdam():
     st.markdown("<h1 style='text-align: center; color: #007bff;'>🌍 지진 대비 AI 챗봇</h1>", unsafe_allow_html=True)
 
     # ✅ CSS 스타일 추가 (유저와 AI 메시지 구분)
-    st.markdown("""
+    st.markdown(""" 
         <style>
             .chat-container {
                 display: flex;
@@ -68,17 +69,28 @@ def run_sangdam():
         """
     )
 
-    # ✅ 예시 질문 표시
+    # ✅ 예시 질문 표시 (답변 수정)
     with st.expander("💡 예시 질문 보기"):
+
         st.markdown(
             """
-            - 최근 지진 정보는 어디서 확인할 수 있나요?
-            - 지진 발생 시 가장 안전한 장소는?
-            - 지진 대비를 위해 어떤 물품을 준비해야 하나요?  
-            - 내진 설계가 중요한 이유는 무엇인가요? 
-            - 쓰나미 경보가 발령되면 어떻게 대처해야 하나요? 
-            """,
-            unsafe_allow_html=True
+            - 최근 지진 발생 정보는 어디에서 실시간으로 확인할 수 있나요?
+            
+            -  지진 발생 시 가장 안전한 장소는 어디인가요?
+            
+            - 지진 발생 후 구조 활동이 이루어질 때, 개인적으로 할 수 있는 안전한 대처 방법은 무엇인가요?
+            
+            - 지진 대비를 위해 어떤 물품을 준비해야 할까요?
+            
+            - 내진 설계가 중요한 이유는 무엇인가요?
+            
+            - 쓰나미 경보가 발령되면 어떻게 대처해야 하나요?
+            
+            - 지진 후 발생할 수 있는 2차 피해에 대한 대처법은 무엇인가요?
+            
+            - 지진 발생 후 심리적 충격을 어떻게 극복할 수 있나요?
+    
+            """, unsafe_allow_html=True
         )
 
     token = get_huggingface_token()
@@ -90,30 +102,8 @@ def run_sangdam():
             {"role": "assistant", "content": "안녕하세요! 지진 대비 챗봇입니다. 궁금한 점을 물어보세요!"}
         ]
 
-    # ✅ 기존 채팅 기록 표시 (프로필 아이콘 추가)
-    for message in st.session_state.messages:
-        role = message["role"]
-        message_content = message["content"]
-
-        if role == "user":
-            icon_url = "https://cdn-icons-png.flaticon.com/512/1144/1144760.png"  # 사용자 아이콘
-            message_class = "user-message"
-        else:
-            icon_url = "https://cdn-icons-png.flaticon.com/512/4712/4712034.png"  # AI 아이콘
-            message_class = "ai-message"
-
-        st.markdown(
-            f"""
-            <div class="chat-container">
-                <img src="{icon_url}" class="chat-icon">
-                <div class="{message_class}">{message_content}</div>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-    # ✅ 사용자 입력 받기 (고유한 key 값 추가)
-    chat = st.chat_input("지진 관련 질문을 입력하세요!", key="chat_input")
+    # ✅ 사용자 입력 받기
+    chat = st.chat_input("지진 관련 질문을 입력하세요!")
 
     if chat:
         clean_chat = clean_input(chat)
@@ -123,7 +113,8 @@ def run_sangdam():
         else:
             # ✅ AI 응답 요청 (Gemma 모델 사용)
             system_prompt = (          
-                '''너는 지진 대비 및 자연재해 전문가 AI야.  
+       
+    '''너는 지진 대비 및 자연재해 그리고 건축 내진설계 전문가 AI야.  
 너의 역할은 사용자에게 **지진 대비, 대피 요령, 긴급 상황 행동 지침, 내진 설계, 지진 예측 기술, 심리적 대처 방법**에 대한 정보를 제공하는 것이야.  
 다음과 같은 원칙을 준수해야 해:
 
@@ -148,42 +139,82 @@ def run_sangdam():
    - 쓰나미 경보가 발령될 경우 즉시 이동해야 하는 안전한 장소를 안내해.
    - 높은 지대로 신속히 대피하는 방법과 대피소 정보를 제공해.
 
-5️⃣ **기타**:
+ **기타**:
    - 최근 발생한 주요 지진과 그로 인한 피해 사례를 언급할 수 있어.
    - 심리적 불안을 겪는 사람들에게 지진 이후 스트레스를 극복하는 방법을 안내해.
    - 한국과 세계 각국의 지진 대비 정책이나 대피소 운영 시스템을 소개할 수 있어.
-'''
-      
-                '''너는 지진 대비 및 자연재해 전문가 AI야.  
-너의 역할은 사용자에게 **지진 대비, 대피 요령, 긴급 상황 행동 지침, 내진 설계, 지진 예측 기술, 심리적 대처 방법**에 대한 정보를 제공하는 것이야.  
-'''
-            )
+
+6️⃣ **내진 설계 설명**:
+   - 내진 설계의 정의와 목적을 설명해.
+   - 내진 설계가 적용된 건축물의 주요 특징과 기술을 안내해.
+   - 내진 설계가 지진 피해를 줄이는 데 어떻게 도움이 되는지 설명해.
+
+**예시 질문에 대한 대답**:
+1. "최근 지진 발생 정보는 어디에서 실시간으로 확인할 수 있나요?"  
+   → 최신 지진 정보는 **지진 관련 기관의 웹사이트** 또는 **지진 관련 앱**에서 실시간으로 확인할 수 있습니다. 예를 들어, **USGS (미국 지질조사국)**나 **KMA (한국 기상청)** 앱을 통해 최신 지진 정보를 확인할 수 있습니다.
+
+2. "지진 발생 시 가장 안전한 장소는 어디인가요?"  
+   → 실내에서는 **책상 아래**나 **문틀**과 같은 강한 구조물 근처로 대피하는 것이 안전합니다. 실외에서는 **건물에서 떨어진 장소**로 이동해야 하며, **전봇대나 나무 아래**는 피해야 합니다.
+
+3. "지진 발생 후 구조 활동이 이루어질 때, 개인적으로 할 수 있는 안전한 대처 방법은 무엇인가요?"  
+   → 구조 활동이 시작되면, 자신이 안전한 장소에 있어야 하며, **여진**에 대비하고, **구조 요청 방법**을 알아둬야 합니다. 또한, **수분 섭취**와 **체온 유지**가 중요합니다.
+
+4. "지진 대비를 위해 어떤 물품을 준비해야 할까요?"  
+   → **응급처치 키트**, **비상식량**, **물**, **랜턴**, **휴대폰 충전기** 등의 필수적인 생존 물품을 준비하는 것이 좋습니다.
+
+5. "내진 설계가 중요한 이유는 무엇인가요?"  
+   → 내진 설계는 건물의 **안전성**을 확보하고, 지진 발생 시 **건물의 붕괴를 방지**하여 생명과 재산을 보호하는 데 중요한 역할을 합니다.
+
+6. "쓰나미 경보가 발령되면 어떻게 대처해야 하나요?"  
+   → 쓰나미 경보가 발령되면, 즉시 **높은 지대로 대피**하고, **해안 지역**에서 멀리 떨어져야 합니다.
+
+7. "지진 후 발생할 수 있는 2차 피해에 대한 대처법은 무엇인가요?"  
+   → 화재, 산사태, **전력망 손상** 등에 대비하려면 **소화기**, **건강 상태 확인**, **안전한 지역으로 대피**하는 것이 중요합니다.
+
+8. "지진 발생 후 심리적 충격을 어떻게 극복할 수 있나요?"  
+   → 지진 후 심리적 충격을 극복하려면, **심리적 지원**을 받는 것이 중요하며, **스트레스 관리**를 위한 **휴식과 대화**가 필요합니다.
+
+**기타**:
+   - 네, 이와 같은 정보들은 **지진 대비**와 관련된 상담에 적합합니다.'''
+
+)
+
+
+            
             full_prompt = system_prompt + "\n\n" + clean_chat
 
-            response = client.text_generation(prompt=full_prompt, max_new_tokens=520)
+            # ✅ 스피너로 AI 응답 기다리기
+            with st.spinner("AI가 응답 중입니다..."):
+                response = client.text_generation(prompt=full_prompt, max_new_tokens=520, temperature=0.15,   # 조금 더 창의적이고 구체적인 답변을 유도
+    top_p=0.9,         # 더 적합한 답변을 만들도록 설정
+    top_k=50)
+                time.sleep(2)  # 응답을 기다리는 동안 잠시 지연을 추가할 수 있습니다.
 
         # ✅ 채팅 기록 추가
         st.session_state.messages.append({"role": "user", "content": clean_chat})
         st.session_state.messages.append({"role": "assistant", "content": response})
 
-        # ✅ 사용자 메시지 표시
+    # ✅ 기존 채팅 기록 표시 (역순으로 채팅 기록을 표시)
+    for message in st.session_state.messages[::-1]:  # 역순으로 채팅 기록을 표시
+        role = message["role"]
+        message_content = message["content"]
+
+        if role == "user":
+            icon_url = "https://cdn-icons-png.flaticon.com/512/1144/1144760.png"  # 사용자 아이콘
+            message_class = "user-message"
+        else:
+            icon_url = "https://cdn-icons-png.flaticon.com/512/4712/4712034.png"  # AI 아이콘
+            message_class = "ai-message"
+
         st.markdown(
             f"""
             <div class="chat-container">
-                <img src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png" class="chat-icon">
-                <div class="user-message">{clean_chat}</div>
+                <img src="{icon_url}" class="chat-icon">
+                <div class="{message_class}">{message_content}</div>
             </div>
             """,
             unsafe_allow_html=True
         )
 
-        # ✅ AI 응답 메시지 표시
-        st.markdown(
-            f"""
-            <div class="chat-container">
-                <img src="https://cdn-icons-png.flaticon.com/512/4712/4712034.png" class="chat-icon">
-                <div class="ai-message">{response}</div>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+    # ✅ 자동으로 스크롤 하여 최신 메시지로 이동
+    st.markdown('<script>window.scrollTo(0, document.body.scrollHeight);</script>', unsafe_allow_html=True)

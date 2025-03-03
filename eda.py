@@ -5,17 +5,13 @@ import joblib
 import pandas as pd
 import requests
 from folium.plugins import HeatMap
-from news import run_news
-
-import os
-import joblib
-import streamlit as st
 
 model_path = "earthquake_model.joblib"
 scaler_path = "scaler.joblib"
 
-
-
+# Load the scaler and model
+loaded_scaler = joblib.load(scaler_path)
+loaded_rf = joblib.load(model_path)
 
 # ✅ 1. 과거 지진 데이터를 USGS API에서 가져오기
 @st.cache_data(ttl=3600)
@@ -74,8 +70,8 @@ def get_lat_lon_from_address(address, retries=3):
 # ✅ 3. 지진 발생 확률 예측 함수
 def predict_earthquake(lat, lon, depth=10.0):
     input_df = pd.DataFrame([[lat, lon, depth]], columns=['lat', 'lon', 'depth'])
-    input_scaled = loaded_scaler.transform(input_df)
-    prob = loaded_rf.predict_proba(input_scaled)[0][1]
+    input_scaled = loaded_scaler.transform(input_df)  # Scale the input data using the loaded scaler
+    prob = loaded_rf.predict_proba(input_scaled)[0][1]  # Get the probability for class 1 (earthquake)
     return round(prob * 100, 2)
 
 # ✅ 4. 위험 등급 판별 함수
@@ -101,7 +97,7 @@ def run_eda():
     address = st.text_input("📍 주소를 입력하세요 (예: 서울특별시 강남구)")
 
     # 기본 좌표 (한국 중앙)
-    lat, lon = 36.5, 127.8  
+    lat, lon = 36.5, 127.8  # 한국의 중앙 위치
     prob = None  # 예측 결과 기본값
     risk_level, advice = None, None  # 기본 위험 정보
 
@@ -125,9 +121,6 @@ def run_eda():
     else:
         st.write("🔍 위치를 입력하면 자동으로 예측이 실행됩니다.")
 
-    # ✅ 6. 실시간 지진 위험 HeatMap (사용자 입력 위치 포함)
-    st.write("### 🔥 실시간 지진 위험도")
-
     # ✅ 좌표가 유효할 때만 지도 생성
     if lat is not None and lon is not None:
         real_time_map = folium.Map(location=[lat, lon], zoom_start=6, tiles="OpenStreetMap")
@@ -144,4 +137,3 @@ def run_eda():
         st_folium(real_time_map, height=500, width=700)
     else:
         st.error("🚨 지도 생성을 위한 유효한 좌표가 없습니다. 올바른 주소를 입력하세요.")
-
