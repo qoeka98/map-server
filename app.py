@@ -10,6 +10,10 @@ from map import run_map
 from new import run_new
 from snagdam import run_sangdam
 
+def main():
+    # ✅ Streamlit Option Menu 사
+    with st.sidebar:
+        st.markdown("""
             <style>
                 .sidebar-title {
                     text-align: center;
