@@ -78,7 +78,7 @@ def predict_earthquake(lat, lon, depth=10.0):
 def get_risk_level(prob):
     if prob < 10:
         return "🟢 매우 낮음 (Very Low Risk)", "일반적인 생활을 유지하세요."
-    elif prob < 40:
+    elif prob < 35:
         return "🟢 낮음 (Low Risk)", "긴급 대비책을 점검하세요."
     elif prob < 50:
         return "🟡 보통 (Moderate Risk)", "비상 물품을 준비하고 대피 경로를 확인하세요."
