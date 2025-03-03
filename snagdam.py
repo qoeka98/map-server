@@ -83,6 +83,7 @@ def run_sangdam():
         "쓰나미 경보가 발령되면 어떻게 대처해야 하나요?"
     ]
 
+    # ✅ 선택된 질문을 저장할 변수 초기화
     if 'selected_question' not in st.session_state:
         st.session_state['selected_question'] = ''
 
@@ -114,7 +115,8 @@ def run_sangdam():
             """, unsafe_allow_html=True)
 
     # ✅ 사용자 입력 받기
-    chat = st.chat_input("지진 관련 질문을 입력하세요!", key="chat_input", placeholder=st.session_state['selected_question'])
+    placeholder_text = st.session_state.get('selected_question', "") or "지진 관련 질문을 입력하세요!"
+    chat = st.chat_input("지진 관련 질문을 입력하세요!", key="chat_input", placeholder=placeholder_text)
 
     if chat:
         clean_chat = clean_input(chat)
