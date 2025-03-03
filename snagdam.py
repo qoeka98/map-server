@@ -82,9 +82,14 @@ def run_sangdam():
         "내진 설계가 중요한 이유는 무엇인가요?",
         "쓰나미 경보가 발령되면 어떻게 대처해야 하나요?"
     ]
+
+    # ✅ 선택된 질문을 저장할 변수 초기화
+    if 'selected_question' not in st.session_state:
+        st.session_state['selected_question'] = ''
+
     for question in example_questions:
         if st.button(question):
-            st.session_state.chat_input = question
+            st.session_state['selected_question'] = question
 
     token = get_huggingface_token()
     client = InferenceClient(model="google/gemma-2-9b-it", api_key=token)
@@ -110,7 +115,7 @@ def run_sangdam():
             """, unsafe_allow_html=True)
 
     # ✅ 사용자 입력 받기
-    chat = st.chat_input("지진 관련 질문을 입력하세요!", key="chat_input")
+    chat = st.chat_input("지진 관련 질문을 입력하세요!", key="chat_input", placeholder=st.session_state['selected_question'])
 
     if chat:
         clean_chat = clean_input(chat)
