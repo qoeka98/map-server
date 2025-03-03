@@ -113,7 +113,6 @@ def get_major_countries_risk():
         })
     return pd.DataFrame(country_risks)
 
-# ✅ 7. Streamlit UI 실행
 def run_new():
     st.title("🌍 실시간 지진 예측 시스템")
     st.info('''🌍 **지구별 지진 위험도 미리 파악하세요!**  
