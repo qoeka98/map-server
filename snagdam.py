@@ -83,7 +83,6 @@ def run_sangdam():
         "쓰나미 경보가 발령되면 어떻게 대처해야 하나요?"
     ]
 
-    # ✅ 선택된 질문을 저장할 변수 초기화
     if 'selected_question' not in st.session_state:
         st.session_state['selected_question'] = ''
 
