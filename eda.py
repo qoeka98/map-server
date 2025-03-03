@@ -130,7 +130,7 @@ def run_eda():
             heat_data = df_earthquakes[['lat', 'lon', 'magnitude']].values.tolist()
             HeatMap(heat_data, radius=12, blur=6, min_opacity=0.4).add_to(real_time_map)
 
-        # ✅ 사용자 위치 마커 추가
+        
         if address and lat is not None and lon is not None:
             folium.Marker([lat, lon], popup=f"📍 {address}", icon=folium.Icon(color="red")).add_to(real_time_map)
 
