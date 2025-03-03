@@ -50,6 +50,14 @@ def run_sangdam():
                 margin-bottom: 10px;
                 max-width: 80%;
             }
+            .chat-wrapper {
+                max-height: 400px;
+                overflow-y: auto;
+                padding-right: 10px;
+                margin-bottom: 20px;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+            }
         </style>
     """, unsafe_allow_html=True)
 
@@ -69,28 +77,14 @@ def run_sangdam():
         """
     )
 
-    # ✅ 예시 질문 표시
-    with st.expander("💡 예시 질문 보기"):
-        st.markdown(
-            """
-            - 최근 지진 정보는 어디서 확인할 수 있나요?
-            - 지진 발생 시 가장 안전한 장소는?
-            - 지진 대비를 위해 어떤 물품을 준비해야 하나요?  
-            - 내진 설계가 중요한 이유는 무엇인가요? 
-            - 쓰나미 경보가 발령되면 어떻게 대처해야 하나요? 
-            """,
-            unsafe_allow_html=True
-        )
-
-    token = get_huggingface_token()
-    client = InferenceClient(model="google/gemma-2-9b-it", api_key=token)
-
+    # ✅ 기존 채팅 기록 유지
     if "messages" not in st.session_state:
         st.session_state.messages = [
             {"role": "assistant", "content": "안녕하세요! 지진 대비 챗봇입니다. 궁금한 점을 물어보세요!"}
         ]
 
-    # ✅ 기존 채팅 기록 표시
+    # ✅ 기존 채팅 기록을 화면 하단에 표시
+    st.markdown("<div class='chat-wrapper'>", unsafe_allow_html=True)
     for message in st.session_state.messages:
         role = message["role"]
         message_content = message["content"]
@@ -107,6 +101,7 @@ def run_sangdam():
             """,
             unsafe_allow_html=True
         )
+    st.markdown("</div>", unsafe_allow_html=True)
 
     chat = st.chat_input("지진 관련 질문을 입력하세요!", key="chat_input")
 
@@ -131,23 +126,5 @@ def run_sangdam():
 
             st.session_state.messages.append({"role": "assistant", "content": response})
 
-        # ✅ 최신 메시지를 화면에 즉시 표시
-        role = "user"
-        st.markdown(
-            f"""
-            <div class="chat-container">
-                <img src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png" class="chat-icon">
-                <div class="user-message">{clean_chat}</div>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-        st.markdown(
-            f"""
-            <div class="chat-container">
-                <img src="https://cdn-icons-png.flaticon.com/512/4712/4712034.png" class="chat-icon">
-                <div class="ai-message">{response}</div>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+        # ✅ 화면 자동 스크롤을 위해 빈 요소 추가
+        st.markdown("<div style='height: 50px;'></div>", unsafe_allow_html=True)
